@@ -48,7 +48,7 @@ clean_text <- function(text){
   return(text)
 }
 
-COUNTY <- read.csv("~/Documents/HW-4/COUNTY.csv")
+COUNTY <- read.csv("./COUNTY.csv")
 
 COUNTY1 <- COUNTY %>% 
   mutate(COUNTY = clean_text(COUNTY),
@@ -68,7 +68,7 @@ ggplot(data=NULL) +
   scale_fill_gradient2(name = "", low="blue", mid="white", high="red", midpoint = 0.5) +
   geom_path(data=US_county, aes(x=long, y=lat, group=group), col="black", size=0.05) +
   geom_path(data=US_state, aes(x=long, y=lat, group=group), col="black", size=0.15) +
-  coord_map() +
+  coord_map(projection="ortho", orientation=c(40, -100, 0)) +
   ggtitle("2000 Election Voting Behavior by County") +
   ylab("Latitude") +
   xlab("Longitude")
@@ -88,13 +88,13 @@ Homogeneity <- US_county2 %>%
   summarise(SD = sd(PBUSH, na.rm = TRUE)) %>% 
   arrange(-SD)
 
-knitr::kable(head(Homogeneity, 5), caption = "Most Heterogeneous States")
+knitr::kable(head(Homogeneity, 10), digits = 3, caption = "Most Heterogeneous States")
 
-
+knitr::kable(tail(Homogeneity, 10), digits = 3, caption = "Most Homogenous States")
 
 ```
 
-The states listed above have the largest standard deviations in percent voting for Bush.
+The above tables show standard deviations of percentages voting for bush by state. 
 
 
 
@@ -110,7 +110,7 @@ In this question, please make 4 separate Leaflet maps showing a choropleth map f
 
 
 ```{r, cache=FALSE, echo=FALSE}
-vt_race_data <- read.csv("~/Documents/HW-4/vt_race_data.csv")
+vt_race_data <- read.csv("./vt_race_data.csv")
 
 vt_race <- vt_race_data %>% 
   select(Geo_FIPS, Geo_NAME, Geo_COUNTY, Geo_TRACT, SE_T014_001, SE_T014_003, SE_T014_004, 
@@ -147,9 +147,9 @@ pal_asian<- colorNumeric(palette = "Greens", domain = census_race$prop_asian)
 
 white <- leaflet(VT) %>%
   addTiles() %>% 
-  addPolylines(color="black", weight=1) %>% 
-  addPolygons(stroke = FALSE, fillOpacity = 1, 
+  addPolygons(stroke = FALSE, fillOpacity = 0.75, 
               color = ~pal_white(census_race$prop_white)) %>% 
+  addPolylines(color="black", weight=1) %>% 
   addLegend("bottomright", pal = pal_white, values = ~census_race$prop_white, 
             title = "Proportion White")
 white
@@ -157,27 +157,27 @@ white
   
 hisp <- leaflet(VT) %>%
   addTiles() %>% 
-  addPolylines(color="black", weight=1) %>% 
-  addPolygons(stroke = FALSE, fillOpacity = 1, 
+  addPolygons(stroke = FALSE, fillOpacity = 0.75, 
               color = ~pal_hisp(census_race$prop_hisp)) %>% 
+  addPolylines(color="black", weight=1) %>% 
   addLegend("bottomright", pal = pal_hisp, values = ~census_race$prop_hisp, 
             title = "Proportion Hispanic")
 hisp
 
 black <- leaflet(VT) %>%
   addTiles() %>% 
-  addPolylines(color="black", weight=1) %>% 
-  addPolygons(stroke = FALSE, fillOpacity = 1, 
+  addPolygons(stroke = FALSE, fillOpacity = 0.75, 
               color = ~pal_black(census_race$prop_black)) %>% 
+  addPolylines(color="black", weight=1) %>% 
   addLegend("bottomright", pal = pal_black, values = ~census_race$prop_black, 
             title = "Proportion Black")
 black
 
 asian <- leaflet(VT) %>%
   addTiles() %>% 
-  addPolylines(color="black", weight=1) %>% 
-  addPolygons(stroke = FALSE, fillOpacity = 1, 
+  addPolygons(stroke = FALSE, fillOpacity = 0.75, 
               color = ~pal_asian(census_race$prop_asian)) %>% 
+  addPolylines(color="black", weight=1) %>% 
   addLegend("bottomright", pal = pal_asian, values = ~census_race$prop_asian, 
             title = "Proportion Asian")
 asian
@@ -190,5 +190,7 @@ asian
 
 Comment on general ethnic demographic trends.
 
-There appears to be a region in the North West corner of VT with very high levels of Asians and African Americans. Additionally, there are many isolated clusters of Hispanic populations throughout the state. Interestingly, there is a region in the center of the state where several census tracts with very high proportions of Hispanics surround a very white area that appears to be Rutland. 
+There appears to be a region in the North West corner of VT with very high levels of Asians and African Americans. Additionally, there are many isolated clusters of Hispanic populations throughout the state. Interestingly, surrounding very white Rutland, there are several census tracts with very high proportions of Hispanics.
+
+Note: There is no demographic information available for Census Tract 9800, Chittenden County, Vermont. Additionally, there are missing values in Census Tract 9577, Caledonia County, Vermont (showin in grey).
 
